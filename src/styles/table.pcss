@@ -18,6 +18,8 @@
   box-sizing: border-box;
   display: grid;
   grid-template-columns: calc(100% - var(--cell-size)) var(--cell-size);
+  /* Bug-fix: https://github.com/editor-js/table/issues/175 */
+  z-index: 0;
 
   &--readonly {
     grid-template-columns: 100% var(--cell-size);
@@ -70,7 +72,10 @@
     & .tc-row:first-child {
       font-weight: 600;
       border-bottom: 2px solid var(--color-border);
-
+      position: sticky;
+      top: 0;
+      z-index: 2;
+      background: var(--color-background);
       & [contenteditable]:empty::before {
         content: attr(heading);
         color: var(--color-text-secondary);
@@ -97,9 +102,21 @@
 }
 
 .tc-add-column {
-  padding: 4px 0;
-  justify-content: center;
+  display: grid;
   border-top: 1px solid var(--color-border);
+  grid-template-columns: var(--cell-size);
+  grid-auto-rows: var(--cell-size);
+  place-items: center;
+  svg {
+    padding: 5px;
+    position: sticky;
+    top: 0;
+    background-color: var(--color-background);
+  }
+
+  &--disabled {
+    visibility: hidden;
+  }
 
   @media print {
     display: none;
@@ -111,6 +128,9 @@
   align-items: center;
   padding-left: 4px;
   position: relative;
+  &--disabled {
+    display: none;
+  }
 
   &::before {
     content: "";

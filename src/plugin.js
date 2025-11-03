@@ -1,10 +1,9 @@
 import Table from './table';
 import * as $ from './utils/dom';
 
-import { IconTable, IconTableWithHeadings, IconTableWithoutHeadings } from '@codexteam/icons';
-
+import { IconTable, IconTableWithHeadings, IconTableWithoutHeadings, IconStretch, IconCollapse } from '@codexteam/icons';
 /**
- * @typedef {object} TableConfig - configuration that the user can set for the table
+ * @typedef {object} TableData - configuration that the user can set for the table
  * @property {number} rows - number of rows in the table
  * @property {number} cols - number of columns in the table
  */
@@ -16,10 +15,21 @@ import { IconTable, IconTableWithHeadings, IconTableWithoutHeadings } from '@cod
  * @property {void} setTune - set tune state to the table data
  */
 /**
- * @typedef {object} TableData - object with the data transferred to form a table
+ * @typedef {object} TableConfig - object with the data transferred to form a table
  * @property {boolean} withHeading - setting to use cells of the first row as headings
  * @property {string[][]} content - two-dimensional array which contains table content
  */
+/**
+ * @typedef {object} TableConstructor
+ * @property {TableConfig} data — previously saved data
+ * @property {TableConfig} config - user config for Tool
+ * @property {object} api - Editor.js API
+ * @property {boolean} readOnly - read-only mode flag
+ */
+/**
+ * @typedef {import('@editorjs/editorjs').PasteEvent} PasteEvent
+ */
+
 
 /**
  * Table block for Editor.js
@@ -47,20 +57,19 @@ export default class TableBlock {
   /**
    * Render plugin`s main Element and fill it with saved data
    *
-   * @param {TableData} data — previously saved data
-   * @param {TableConfig} config - user config for Tool
-   * @param {object} api - Editor.js API
-   * @param {boolean} readOnly - read-only mode flag
+   * @param {TableConstructor} init
    */
-  constructor({data, config, api, readOnly}) {
+  constructor({data, config, api, readOnly, block}) {
     this.api = api;
     this.readOnly = readOnly;
     this.config = config;
     this.data = {
       withHeadings: this.getConfig('withHeadings', false, data),
+      stretched: this.getConfig('stretched', false, data),
       content: data && data.content ? data.content : []
     };
     this.table = null;
+    this.block = block;
   }
 
   /**
@@ -124,6 +133,15 @@ export default class TableBlock {
           this.data.withHeadings = false;
           this.table.setHeadingsSetting(this.data.withHeadings);
         }
+      }, {
+        label: this.data.stretched ? this.api.i18n.t('Collapse') : this.api.i18n.t('Stretch'),
+        icon: this.data.stretched ? IconCollapse : IconStretch,
+        closeOnActivate: true,
+        toggle: true,
+        onActivate: () => {
+          this.data.stretched = !this.data.stretched;
+          this.block.stretched = this.data.stretched;
+        }
       }
     ];
   }
@@ -137,6 +155,7 @@ export default class TableBlock {
 
     const result = {
       withHeadings: this.data.withHeadings,
+      stretched: this.data.stretched,
       content: tableContent
     };
 
@@ -154,8 +173,8 @@ export default class TableBlock {
 
   /**
    * A helper to get config value.
-   * 
-   * @param {string} configName - the key to get from the config. 
+   *
+   * @param {string} configName - the key to get from the config.
    * @param {any} defaultValue - default value if config doesn't have passed key
    * @param {object} savedData - previously saved data. If passed, the key will be got from there, otherwise from the config
    * @returns {any} - config value.
@@ -170,7 +189,7 @@ export default class TableBlock {
     return this.config && this.config[configName] ? this.config[configName] : defaultValue;
   }
 
-  /**  
+  /**
    * Table onPaste configuration
    *
    * @public
@@ -192,12 +211,12 @@ export default class TableBlock {
 
     /** Get all rows from the table */
     const rows = Array.from(table.querySelectorAll('tr'));
-    
+
     /** Generate a content matrix */
     const content = rows.map((row) => {
       /** Get cells from row */
       const cells = Array.from(row.querySelectorAll('th, td'))
-      
+
       /** Return cells content */
       return cells.map((cell) => cell.innerHTML);
     });
