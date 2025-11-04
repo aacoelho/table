@@ -892,17 +892,20 @@ class F {
     return !0;
   }
   /**
-   * Sanitizer config for Table Tool saved data
-   * Allows <br> tags in content to preserve line breaks
-   * The sanitizer will process HTML strings in the content array
-   * @returns {Object}
+   * Do not sanitize <br> while inline toolbar enabled
+   *
+   * @returns {object}
+   * @public
    */
   static get sanitize() {
     return {
-      content: {
-        br: !0
-        // Allow <br> tags in HTML strings within content array
-      }
+      br: !0,
+      u: !0,
+      b: !0,
+      i: !0,
+      del: !0,
+      p: !0,
+      a: !0
     };
   }
   /**

@@ -55,17 +55,21 @@ export default class TableBlock {
   }
 
   /**
-   * Sanitizer config for Table Tool saved data
-   * Allows <br> tags in content to preserve line breaks
-   * The sanitizer will process HTML strings in the content array
-   * @returns {Object}
+   * Do not sanitize <br> while inline toolbar enabled
+   *
+   * @returns {object}
+   * @public
    */
   static get sanitize() {
     return {
-      content: {
-        br: true  // Allow <br> tags in HTML strings within content array
-      }
-    };
+      br: true,
+      u: true,
+      b: true,
+      i: true,
+      del: true,
+      p: true,
+      a: true
+    }
   }
 
   /**
