@@ -44,12 +44,12 @@ export default class TableBlock {
      */
     public static get enableLineBreaks(): boolean;
     /**
-     * Sanitizer config for Table Tool saved data
-     * Allows <br> tags in content to preserve line breaks
-     * The sanitizer will process HTML strings in the content array
-     * @returns {Object}
+     * Do not sanitize <br> while inline toolbar enabled
+     *
+     * @returns {object}
+     * @public
      */
-    static get sanitize(): any;
+    public static get sanitize(): any;
     /**
      * Get Tool toolbox settings
      * icon - Tool icon's SVG
