@@ -55,6 +55,20 @@ export default class TableBlock {
   }
 
   /**
+   * Sanitizer config for Table Tool saved data
+   * Allows <br> tags in content to preserve line breaks
+   * The sanitizer will process HTML strings in the content array
+   * @returns {Object}
+   */
+  static get sanitize() {
+    return {
+      content: {
+        br: true  // Allow <br> tags in HTML strings within content array
+      }
+    };
+  }
+
+  /**
    * Render plugin`s main Element and fill it with saved data
    *
    * @param {TableConstructor} init
